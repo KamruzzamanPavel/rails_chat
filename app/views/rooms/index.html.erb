@@ -1,0 +1,30 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="col-span-1 bg-white rounded shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Chat Rooms</h2>
+
+    <ul class="space-y-2 mb-6">
+      <% @rooms.each do |room| %>
+        <li>
+          <%= link_to room.name, room_path(room), class: "block bg-gray-100 px-4 py-2 rounded hover:bg-gray-200" %>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="border-t pt-4">
+      <h3 class="font-medium mb-2">Create a New Room</h3>
+
+      <%= form_with model: @room, class: "flex" do |f| %>
+        <%= f.text_field :name, placeholder: "Room name", class: "flex-1 border border-gray-300 rounded-l px-3 py-2 focus:outline-none focus:ring focus:border-blue-400" %>
+        <%= f.submit "Create", class: "bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="col-span-1 md:col-span-2 bg-white rounded shadow p-6">
+    <div class="flex items-center justify-center h-64">
+      <p class="text-gray-500 text-center">
+        Select a room to start chatting or create a new one.
+      </p>
+    </div>
+  </div>
+</div>

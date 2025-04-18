@@ -1,0 +1,18 @@
+<div class="max-w-md mx-auto bg-white p-8 rounded shadow-md">
+  <h1 class="text-2xl font-bold mb-6">Sign In</h1>
+
+  <%= form_with url: signin_path, class: "space-y-4" do |f| %>
+    <div>
+      <%= f.label :username, class: "block text-gray-700 font-medium mb-2" %>
+      <%= f.text_field :username, class: "w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400" %>
+    </div>
+
+    <div>
+      <%= f.submit "Sign In", class: "w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200" %>
+    </div>
+  <% end %>
+
+  <div class="mt-4 text-center">
+    <p>Don't have an account? <%= link_to "Sign Up", new_user_path, class: "text-blue-600 hover:underline" %></p>
+  </div>
+</div>
