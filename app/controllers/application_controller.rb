@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   def authenticate_user!
     redirect_to signin_path unless user_signed_in?
   end
+  
   def set_action_cable_identifier
   cookies.encrypted[:user_id] = current_user&.id
   end

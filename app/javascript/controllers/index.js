@@ -2,8 +2,3 @@
 import { application } from "controllers/application";
 import { eagerLoadControllersFrom } from "@hotwired/stimulus-loading";
 eagerLoadControllersFrom("controllers", application);
-
-import { application } from "./application";
-import ResetFormController from "./reset_form_controller";
-
-application.register("reset-form", ResetFormController);
