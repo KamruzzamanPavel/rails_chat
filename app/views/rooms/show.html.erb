@@ -1,7 +1,7 @@
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+  <!-- Sidebar - Room List -->
   <div class="col-span-1 bg-white rounded shadow p-6">
     <h2 class="text-xl font-bold mb-4">Chat Rooms</h2>
-
     <ul class="space-y-2">
       <% Room.all.each do |room| %>
         <li>
@@ -12,19 +12,29 @@
     </ul>
   </div>
 
+  <!-- Main Chat Area -->
   <div class="col-span-1 md:col-span-3 bg-white rounded shadow flex flex-col h-[70vh]">
+    <!-- Room Header -->
     <div class="p-4 border-b flex items-center">
       <h1 class="text-xl font-bold"><%= @room.name %></h1>
     </div>
 
+    <!-- Messages -->
     <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-4">
       <%= turbo_stream_from @room %>
 
       <div id="message_list">
-        <%= render @messages %>
+        <% @messages.each do |message| %>
+          <div class="flex m-1 <%= message.user_id == current_user.id ? 'justify-end' : 'justify-start' %>">
+            <div class="<%= message.user_id == current_user.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-black' %> rounded-lg px-4 py-2 max-w-[75%]">
+              <%= render partial: "messages/message", locals: { message: message } %>
+            </div>
+          </div>
+        <% end %>
       </div>
     </div>
 
+    <!-- Message Input Form -->
     <div class="p-4 border-t">
       <%= form_with model: [@room, @message],
                     class: "flex items-center",
@@ -38,3 +48,68 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Store current user ID
+  const CURRENT_USER_ID = <%= current_user.id %>;
+  
+
+  // Function to process a message element
+  const processMessageElement = (element) => {
+    const messageUserId = element.dataset.messageUserId;
+    const isCurrentUser = parseInt(messageUserId) === CURRENT_USER_ID;
+    
+    const container = document.createElement('div');
+    container.className = `flex m-1 ${isCurrentUser ? 'justify-end' : 'justify-start'}`;
+    
+    const messageContent = document.createElement('div');
+    messageContent.className = `rounded-lg px-4 py-2 max-w-[75%] ${
+      isCurrentUser ? 'bg-blue-600 text-white' : 'bg-gray-100 text-black'
+    }`;
+    
+    messageContent.innerHTML = element.innerHTML;
+    container.appendChild(messageContent);
+    
+    return container;
+  };
+
+  // Process Turbo Streams before they render
+  document.addEventListener("turbo:before-stream-render", (event) => {
+    const originalRender = event.detail.render;
+    
+    event.detail.render = function (streamElement) {
+      // Process append actions
+      if (streamElement.action === "append" || streamElement.action === "prepend") {
+        const template = streamElement.templateElement;
+        const fragment = template.content.cloneNode(true);
+        
+        // Find all message elements in the fragment
+        const messageElements = fragment.querySelectorAll('[data-message-user-id]');
+        messageElements.forEach(element => {
+          const processedElement = processMessageElement(element);
+          element.replaceWith(processedElement);
+        });
+        
+        template.content.replaceChildren(fragment);
+      }
+      
+      return originalRender.call(this, streamElement);
+    };
+    
+    // Auto-scroll after render
+    setTimeout(() => {
+      const messagesContainer = document.getElementById("messages");
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }, 50);
+  });
+
+  // Initial scroll
+  document.addEventListener("turbo:load", () => {
+    const messagesContainer = document.getElementById("messages");
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  });
+</script>
